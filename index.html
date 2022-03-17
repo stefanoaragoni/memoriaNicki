@@ -22,14 +22,14 @@
     <script type="text/babel">
 
       const tarjetas = [
-          {"front":"cover.jpeg", "src":"a1.jpg", status: false},
-          {"front":"cover.jpeg", "src":"b1.jpg", status: false},
-          {"front":"cover.jpeg", "src":"c1.jpg", status: false},
-          {"front":"cover.jpeg", "src":"d1.jpg", status: false},
-          {"front":"cover.jpeg", "src":"e1.jpg", status: false},
-          {"front":"cover.jpeg", "src":"f1.jpg", status: false},
-          {"front":"cover.jpeg", "src":"g1.jpg", status: false},
-          {"front":"cover.jpeg", "src":"h1.jpg", status: false}
+          {"front":"cover.jpeg", "src":"a1.jpg", status: false, full: false, first: false, cov: false},
+          {"front":"cover.jpeg", "src":"b1.jpg", status: false, full: false, first: false, cov: false},
+          {"front":"cover.jpeg", "src":"c1.jpg", status: false, full: false, first: false, cov: false},
+          {"front":"cover.jpeg", "src":"d1.jpg", status: false, full: false, first: false, cov: false},
+          {"front":"cover.jpeg", "src":"e1.jpg", status: false, full: false, first: false, cov: false},
+          {"front":"cover.jpeg", "src":"f1.jpg", status: false, full: false, first: false, cov: false},
+          {"front":"cover.jpeg", "src":"g1.jpg", status: false, full: false, first: false, cov: false},
+          {"front":"cover.jpeg", "src":"h1.jpg", status: false, full: false, first: false, cov: false}
       ]
 
       var matches = 0
@@ -57,14 +57,15 @@
           sel1 ? setSel2(cardTemp) : setSel1(cardTemp)
         }
 
+
         React.useEffect(() => {
           if(sel1){
             setTarjetas(tarjetasTemp => {
               return tarjetasTemp.map(tarjetaTemp => {
                 if (tarjetaTemp.id === sel1.id){
-                  return {...tarjetaTemp, status:true}
+                  return {...tarjetaTemp, status:true, first:true, full:false, cov:true}
                 }else{
-                  return tarjetaTemp
+                  return {...tarjetaTemp, full:false, cov:false}
                 }
               })
             })
@@ -75,30 +76,47 @@
           if(sel2){
             setTarjetas(tarjetasTemp => {
               return tarjetasTemp.map(tarjetaTemp => {
+
                 if (tarjetaTemp.id === sel2.id){
-                  return {...tarjetaTemp, status:true}
+                  return {...tarjetaTemp, status:true, first:true, full:true, cov:true}
+                }else if (tarjetaTemp.id === sel1.id){
+                  return {...tarjetaTemp, status:true, first:false}
                 }else{
-                  return tarjetaTemp
+                  return {...tarjetaTemp, cov:false}
                 }
               })
             })
+            
           }
-        }, [sel2])
+        }, [sel1,sel2])
+
 
         React.useEffect(() => {
           if(sel1 && sel2){
             setIntento(intentoTemp+1)
+
             if(sel1.src === sel2.src){
               matches = matches + 2
+
+              setTarjetas(tarjetasTemp => {
+                return tarjetasTemp.map(tarjetaTemp => {
+                  if (tarjetaTemp.src === sel1.src){
+                    return {...tarjetaTemp, first:false, status:true}
+                  }else{
+                    return tarjetaTemp
+                  }
+                })
+              })
             }else{
 
               setTimeout(() => {
+
                 setTarjetas(tarjetasTemp => {
                   return tarjetasTemp.map(tarjetaTemp => {
                     if (tarjetaTemp.src === sel1.src){
-                      return {...tarjetaTemp, status:false}
+                      return {...tarjetaTemp, status:false, full:false, first:false}
                     }else if (tarjetaTemp.src === sel2.src){
-                      return {...tarjetaTemp, status:false}
+                      return {...tarjetaTemp, status:false, full:false, first:false}
                     }else{
                       return tarjetaTemp
                     }
@@ -114,44 +132,56 @@
         }, [sel1,sel2])
 
 
-
         function TEST({tarjeta}) {
           const choiceTemp = () =>{
             choice(tarjeta)
           }
 
-          if(tarjeta.status){
+          console.log(tarjetasTemp, matches)
+
+          if(tarjeta.status === true && tarjeta.first === true){
             return(
-              <div>
-                <div className = 'picNic'>
+              <div className = "front">
                   <img className = 'imagen' src={tarjeta.src} alt="card back" />
-                </div>
-                <div className = 'covNicFalse'>
-                  <img className = 'cover' src="cover.jpeg" onClick={choiceTemp} alt="card front"/>
-                </div>
               </div>
             )
-          }
-          else{
+            
+            //full true, status false, ya vueltas match
+          }else if(tarjeta.status === true && tarjeta.full === true){
+            return(
+              <div className = "front">
+                  <img className = 'imagen' src={tarjeta.src} alt="card back" />
+              </div>
+            )
+            
+            //full true, status false, ya vueltas match
+          }else if(tarjeta.status === true && tarjeta.first === false){
+            return(
+              <div className = "full">
+                  <img className = 'imagen' src={tarjeta.src} alt="card back" />
+              </div>
+            )
+            //status first card
+          }else if(tarjeta.cov === true ){
+            return(
+              <div className = "front">
+                <img className = 'cover' src="cover.jpeg" onClick={choiceTemp} alt="card front"/>
+              </div>
+            )
+            //status first card
+          }else{
             return(
               <div>
-                <div className = 'picNicFalse'>
-                  <img className = 'imagen' src={tarjeta.src} alt="card back" />
-                </div>
-                <div className = 'covNic'>
                   <img className = 'cover' src="cover.jpeg" onClick={choiceTemp} alt="card front"/>
-                </div>
               </div>
             )
           }
         }
 
         function STATS() {
-          console.log(matches)
           if(matches === 16){
             return(
               <div>
-                <h2>¡Ganaste!</h2>
                 <h2>juego completado</h2>
               </div>
             )
